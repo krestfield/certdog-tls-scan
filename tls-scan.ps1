@@ -565,6 +565,7 @@ $allProtocols = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
 # -------------------------------------------------------------------------------------------
 #$VerbosePreference="Continue"
 $certdogUrl = "https://$certdogServer/certdog/api/certs/import"
+Write-Host "Calling certdog URL: $certdogUrl"
 
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Content-Type", "application/json")
@@ -610,11 +611,18 @@ foreach ($ip in $ipAddresses)
     }
     catch
     {
-        $jsonResponse = $_.Exception.Response.GetResponseStream()
-        $reader = New-Object System.IO.StreamReader($jsonResponse)
-        $responseBody = $reader.ReadToEnd();
-        
-        $output = $responseBody | ConvertFrom-Json
-        $output.message
+        if ($_.Exception.Response -ne $null)
+        {
+            $jsonResponse = $_.Exception.Response.GetResponseStream()
+            $reader = New-Object System.IO.StreamReader($jsonResponse)
+            $responseBody = $reader.ReadToEnd();
+            
+            $output = $responseBody | ConvertFrom-Json
+            $output.message
+        }
+        else
+        {
+            Write-Host $_
+        }
     } 
 }
